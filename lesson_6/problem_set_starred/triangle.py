@@ -34,14 +34,12 @@ def triangle(n):
     last_row = []
     result = triangle(n - 1)
     for e in range(0, n):
-        print e
         if e == 0 or e == n - 1:
             last_row.append(1)
         else:
             last_row.append(result[-1][e - 1] + result[-1][e])
     result.append(last_row)
     return result
-
 
 
 #For example:
