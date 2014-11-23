@@ -32,8 +32,23 @@
 # is not usually a good choice, since it means if the input list is already
 # nearly sorted, the actual work will be much worse than expected).
 
-def ordered_search(index, ranks, keyword):
+def quick_sort(unordered, ranks):
+    if len(unordered) < 2:
+        return unordered
+    else:
+        smaller, equal, larger = [], [], []
+        for e in unordered:
+            if ranks[e] < ranks[unordered[0]]:
+                smaller.append(e)
+            if ranks[e] == ranks[unordered[0]]:
+                equal.append(e)
+            if ranks[e] > ranks[unordered[0]]:
+                larger.append(e)
+        return quick_sort(larger, ranks) + equal + quick_sort(smaller, ranks)
 
+def ordered_search(index, ranks, keyword):
+    if lookup(index, keyword):
+        return quick_sort(lookup(index, keyword), ranks)
 
 
 cache = {
@@ -251,19 +266,19 @@ def compute_ranks(graph):
 index, graph = crawl_web('http://udacity.com/cs101x/urank/index.html')
 ranks = compute_ranks(graph)
 
-#print ordered_search(index, ranks, 'Hummus')
+print ordered_search(index, ranks, 'Hummus')
 #>>> ['http://udacity.com/cs101x/urank/kathleen.html',
 #    'http://udacity.com/cs101x/urank/nickel.html',
 #    'http://udacity.com/cs101x/urank/arsenic.html',
 #    'http://udacity.com/cs101x/urank/hummus.html',
 #    'http://udacity.com/cs101x/urank/index.html']
 
-#print ordered_search(index, ranks, 'the')
+print ordered_search(index, ranks, 'the')
 #>>> ['http://udacity.com/cs101x/urank/nickel.html',
 #    'http://udacity.com/cs101x/urank/arsenic.html',
 #    'http://udacity.com/cs101x/urank/hummus.html',
 #    'http://udacity.com/cs101x/urank/index.html']
 
 
-#print ordered_search(index, ranks, 'babaganoush')
+print ordered_search(index, ranks, 'babaganoush')
 #>>> None
