@@ -53,7 +53,7 @@ __author__ = 'QingxiaoDong'
 # -----------------------------------------------------------------------------
 
 # Example string input. Use it to test your code.
-example_input="John is connected to Bryant, Debra, Walter.\
+example_input = "John is connected to Bryant, Debra, Walter.\
 John likes to play The Movie: The Game, The Legend of Corgi, Dinosaur Diner.\
 Bryant is connected to Olive, Ollie, Freda, Mercedes.\
 Bryant likes to play City Comptroller: The Fiscal Dilemma, Super Mushroom Man.\
@@ -78,12 +78,12 @@ Freda likes to play Starfleet Commander, Ninja Hamsters, Seahorse Adventures."
 
 # -----------------------------------------------------------------------------
 # create_data_structure(string_input):
-#   Parses a block of text (such as the one above) and stores relevant
-#   information into a data structure. You are free to choose and design any
-#   data structure you would like to use to manage the information.
+# Parses a block of text (such as the one above) and stores relevant
+# information into a data structure. You are free to choose and design any
+# data structure you would like to use to manage the information.
 #
 # Arguments:
-#   string_input: block of text containing the network information
+# string_input: block of text containing the network information
 #
 #   You may assume that for all the test cases we will use, you will be given the
 #   connections and games liked for all users listed on the right-hand side of an
@@ -98,7 +98,18 @@ Freda likes to play Starfleet Commander, Ninja Hamsters, Seahorse Adventures."
 # Return:
 #   The newly created network data structure
 def create_data_structure(string_input):
+    network = {}
+    for e in string_input.split('.'):
+        if e != '':
+            name = e.split()[0]
+            if name not in network:
+                network[name] = [[], []]
+        if 'is connected to' in e:
+            network[e.split()[0]][0] = e[e.find('is connected to') + 16:].split(', ')
+        if 'likes to play' in e:
+            network[e.split()[0]][1] = e[e.find('likes to play') + 14:].split(', ')
     return network
+
 
 # ----------------------------------------------------------------------------- #
 # Note that the first argument to all procedures below is 'network' This is the #
@@ -120,7 +131,9 @@ def create_data_structure(string_input):
 #   - If the user has no connections, return an empty list.
 #   - If the user is not in network, return None.
 def get_connections(network, user):
-	return []
+    if user in network:
+        return network[user][0]
+
 
 # -----------------------------------------------------------------------------
 # get_games_liked(network, user):
@@ -134,8 +147,10 @@ def get_connections(network, user):
 #   A list of all games the user likes.
 #   - If the user likes no games, return an empty list.
 #   - If the user is not in network, return None.
-def get_games_liked(network,user):
-    return []
+def get_games_liked(network, user):
+    if user in network:
+        return network[user][1]
+
 
 # -----------------------------------------------------------------------------
 # add_connection(network, user_A, user_B):
@@ -152,7 +167,12 @@ def get_games_liked(network,user):
 #   - If a connection already exists from user_A to user_B, return network unchanged.
 #   - If user_A or user_B is not in network, return False.
 def add_connection(network, user_A, user_B):
-	return network
+    if user_A not in network or user_B not in network:
+        return False
+    if user_B not in network[user_A][0]:
+        network[user_A][0].append(user_B)
+        return network
+
 
 # -----------------------------------------------------------------------------
 # add_new_user(network, user, games):
@@ -172,7 +192,10 @@ def add_connection(network, user_A, user_B):
 #   - If the user already exists in network, return network *UNCHANGED* (do not change
 #     the user's game preferences)
 def add_new_user(network, user, games):
+    if user not in network:
+        network[user] = [[], games]
     return network
+
 
 # -----------------------------------------------------------------------------
 # get_secondary_connections(network, user):
@@ -193,7 +216,15 @@ def add_new_user(network, user, games):
 #   himself/herself. It is also OK if the list contains a user's primary
 #   connection that is a secondary connection as well.
 def get_secondary_connections(network, user):
-	return []
+    secondary = None
+    if user in network:
+        secondary = []
+        for first in network[user][0]:
+            for second in network[first][0]:
+                if second not in secondary:
+                    secondary.append(second)
+    return secondary
+
 
 # -----------------------------------------------------------------------------
 # connections_in_common(network, user_A, user_B):
@@ -208,7 +239,14 @@ def get_secondary_connections(network, user):
 #   The number of connections in common (as an integer).
 #   - If user_A or user_B is not in network, return False.
 def connections_in_common(network, user_A, user_B):
-    return 0
+    if user_A not in network or user_B not in network:
+        return False
+    n = 0
+    for connection in network[user_A][0]:
+        if connection in network[user_B][0]:
+            n += 1
+    return n
+
 
 # -----------------------------------------------------------------------------
 # path_to_friend(network, user_A, user_B):
@@ -242,9 +280,20 @@ def connections_in_common(network, user_A, user_B):
 #   in this procedure to keep track of nodes already visited in your search. You
 #   may safely add default parameters since all calls used in the grading script
 #   will only include the arguments network, user_A, and user_B.
-def path_to_friend(network, user_A, user_B):
-	# your RECURSIVE solution here!
-	return None
+def path_to_friend(network, user_A, user_B, visited = None):
+    if visited == None:
+        visited = []
+    # your RECURSIVE solution here!
+    if user_A in network and user_B in network:
+        visited.append(user_A)
+        if user_B in network[user_A][0]:
+            return [user_A, user_B]
+        for e in network[user_A][0]:
+            if e not in visited:
+                path_left = path_to_friend(network, e, user_B, visited)
+                if path_left:
+                    return [user_A] + path_left
+
 
 # Make-Your-Own-Procedure (MYOP)
 # -----------------------------------------------------------------------------
@@ -253,8 +302,131 @@ def path_to_friend(network, user_A, user_B):
 # your network (like path_to_friend). Don't forget to comment your MYOP. You
 # may give this procedure any name you want.
 
-# Replace this with your own procedure! You can also uncomment the lines below
-# to see how your code behaves. Have fun!
+# -----------------------------------------------------------------------------
+# compute_user_popularity(network):
+#   Roughly computes popularity of each user in gamer network based on two main
+#   factors:
+#       1)  The number of users that are connected to him/her is positively
+#           correlated to his/her popularity.
+#       2)  The popularity of the users who are connected to him/her is positively
+#           correlated to his/her popularity.
+#
+# Arguments:
+#   network: the gamer network data structure.
+#
+# Return:
+#   A dictionary showing popularity of each user in the gamer network.
+def compute_user_popularity(network):
+    #no damping factor needed
+    nloops = 10
+    popularity = {}
+    nusers = len(network)
+    for user in network:
+        popularity[user] = 1.0 / nusers
+    for i in range(0, nloops):
+        new_popularity = {}
+        for user in network:
+            popu = 0
+            for user2 in network:
+                if user in network[user2][0]:
+                    popu = popu + popularity[user2] / len(network[user2][0])
+            new_popularity[user] = popu
+        popularity = new_popularity
+    return popularity
+
+# -----------------------------------------------------------------------------
+# find_most_popular_user(network):
+#   Finds the most popular user of the given gamer network.
+#
+# Arguments:
+#   network: the gamer network data structure.
+#
+# Return:
+#   The name of the most popular user.
+#   -   If two or more users are equally popular and are the most popular ones,
+#       return all their names separated by comma and space.
+def find_most_popular_user(network):
+    popularity = compute_user_popularity(network)
+    most = -1
+    puser = None
+    for user in popularity:
+        if popularity[user] == most:
+            puser = puser + ', ' + user
+        if popularity[user] > most:
+            most = popularity[user]
+            puser = user
+    return puser
+
+# -----------------------------------------------------------------------------
+# games_in_common(network, user_A, user_B):
+#   Finds the games that user_A and user_B have in common.
+#
+# Arguments:
+#   network: the gamer network data structure
+#   user_A:  a string containing the name of user_A
+#   user_B:  a string containing the name of user_B
+#
+# Return:
+#   The games in common (as a string, games are separated by comma and space).
+#   - If user_A or user_B is not in network, return False.
+#   - If user_A or user_B do not have games in common, return None.
+def games_in_common(network, user_A, user_B):
+    if user_A not in network or user_B not in network:
+        return False
+    games = None
+    for g in network[user_A][1]:
+        if g in network[user_B][1]:
+            if games:
+                games = games + ', ' + g
+            else:
+                games = g
+    return games
+
+# -----------------------------------------------------------------------------
+# find_gamers(network, game):
+#   Finds all the users who play the given game.
+#
+# Arguments:
+#   network: the gamer network data structure
+#   game:  a string containing the name of a game
+#
+# Return:
+#   A list of users who play the game.
+#   If no user play the game, return empty list.
+def find_gamers(network, game):
+    gamers = []
+    for user in network:
+        if game in network[user][1]:
+            gamers.append(user)
+    return gamers
+
+
+# -----------------------------------------------------------------------------
+# sort_games(network):
+#   Sorts all the games played by the users in the network based on the number
+#   of users who play each game.
+#
+# Arguments:
+#   network: the gamer network data structure
+#
+# Return:
+#   A sorted list of lists which contain the name of each game and the number
+#   of users who play the game.
+#   - The game with most number of users should be placed first.
+def sort_games(network):
+    games = {}
+    for user in network:
+        for game in network[user][1]:
+            if game not in games:
+                games[game] = 1
+            else:
+                games[game] += 1
+    s = sorted(games, key=games.__getitem__, reverse=True)
+    chart = []
+    for e in s:
+        chart.append([e, games[e]])
+    return chart
+
 
 #net = create_data_structure(example_input)
 #print net
@@ -265,5 +437,14 @@ def path_to_friend(network, user_A, user_B):
 #print get_connections(net, "Mercedes")
 #print get_games_liked(net, "John")
 #print add_connection(net, "John", "Freda")
+#print get_connections(net, 'John')
 #print get_secondary_connections(net, "Mercedes")
 #print connections_in_common(net, "Mercedes", "John")
+#print compute_user_popularity(net)
+#print find_most_popular_user(net)
+#print find_most_popular_user({'a':[[],[]], 'b':[[],[]]})
+#print games_in_common(net, 'John', 'Ollie')
+#print games_in_common(net, 'Walter', 'Freda')
+#print find_gamers(net, 'The Movie: The Game')
+#print find_gamers(net, 'Lord of Rings')
+#print sort_games(net)
