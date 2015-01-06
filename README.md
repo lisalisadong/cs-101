@@ -1,6 +1,6 @@
 CS101: Intro to Computer Science
 ------
-This is an introductory computer programming course taught in Python, by [Prof. David Evans](http://www.cs.virginia.edu/~evans/) on [Udacity](https://www.udacity.com/course/cs101
+I completed this introductory computer programming course taught in Python, by [Prof. David Evans](http://www.cs.virginia.edu/~evans/) on [Udacity](https://www.udacity.com/course/cs101
 ). Several key search engine components (including a crawler, an index and a page rank algorithm) are built through the course.
 
 ##### Selected problems:
