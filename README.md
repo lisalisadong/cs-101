@@ -22,3 +22,7 @@ This is an introductory computer programming course taught in Python, by [Prof. 
 [10-row School Abacus](https://github.com/lisalisadong/CS101/blob/6b26f564aa2d0cebed588d2f438cc3247c0d2d7a/02_lesson_2/problem_set_optional_2/10RowAbacus.py)
 
 [Gaming Social Network (Final Project)](https://github.com/lisalisadong/CS101/blob/master/10_final_project/gamingSocialNetwork.py)
+
+##### Certificate:
+
+![alt text](https://github.com/lisalisadong/CS101/blob/master/certificate.png "Qingxiao Dong's certificate for CS101 issued by Udacity.")
